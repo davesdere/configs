@@ -22,3 +22,8 @@ docs/
 
 # Code coverage
 *.lst
+
+# Null of Ur Bizwack
+*.keys
+*.k
+*.json
