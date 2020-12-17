@@ -6,7 +6,7 @@ parse_git_branch() {
       echo
     else
       echo 
-      echo $f$g
+      echo "$f($g)"
     fi
 }
 PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[00m\]└── \[\033[01;34m\]\w\[\033[00m\]\$ '
