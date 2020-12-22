@@ -74,11 +74,17 @@ git_branch() {
 #PS1='\D{%T} $(parse_git_branch)\n${PS1}'
 #└──
 #'${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+
 if [ "$color_prompt" = yes ]; then
     PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[00m\]└── \[\033[01;34m\]\w\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
+if [[ $(id -u) -eq 0 ]];then
+    # ps1 for root user
+    PS1='👿 $PS1 '
+fi
+
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
