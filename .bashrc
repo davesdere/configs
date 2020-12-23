@@ -76,7 +76,7 @@ git_branch() {
 #'${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 if [ "$color_prompt" = yes ]; then
-    PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[00m\]└── \[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[34m\]└── \[\033[01;34m\]\w\[\033[32m\] \$ \[\033[01;00m\]'
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
