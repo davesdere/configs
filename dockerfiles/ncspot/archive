@@ -1,0 +1,2 @@
+docker run -it -v /etc/localtime:/etc/localtime  -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --device /dev/snd --link davesdere/pulseaudio:pulseaudio -e PULSE_SERVER=davesdere/pulseaudio  --name ncspot  davesdere/ncspot
+

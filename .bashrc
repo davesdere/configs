@@ -82,7 +82,7 @@ else
 fi
 if [[ $(id -u) -eq 0 ]];then
     # ps1 for root user
-    PS1='👿 $PS1 '
+    PS1='\033[31;5m$PS1\033[0m '
 fi
 
 unset color_prompt force_color_prompt
