@@ -1,0 +1,4 @@
+if [ -d "/home/$USER/Desktop" ]; then
+if [ -d "/home/($USER)/Desktop" ]; then
+if [ -d "/home/`$USER`/Desktop" ]; then
+if [ -d "/home/$USER/Desktop" ]; then
