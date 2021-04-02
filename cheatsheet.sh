@@ -36,6 +36,7 @@ update-alternatives --set editor /usr/bin/vim.tiny | update-alternatives --set e
 
 # To keep local vim setting when using it as root, use
 sudo -e vim /path/to/file
+
 # When creating a user, the content of /etc/skel will be copied to the new user folder in /home
 
 ## Change host name | Requires reboot
@@ -127,3 +128,13 @@ fdisk -l
 
 # reset
 reset
+
+# Generate Docs
+generate_doc(){
+doc_bs64=""
+`echo $doc_b64 | base64 -d` > README_auto.md
+
+}
+
+# Git
+git log -p # git log --path # Gives you inline history
