@@ -58,7 +58,8 @@ fi
 
 alias lg="git log --all --decorate --oneline --graph"
 parse_git_branch() {
-    f='└── '
+
+    f='_ '
     g=$(git branch 2>/dev/null | grep '^*' | colrm 1 2)
     if [ -z "$g" ]
     then
@@ -76,13 +77,14 @@ git_branch() {
 #'${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 if [ "$color_prompt" = yes ]; then
-    PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[34m\]└── \[\033[01;34m\]\w\[\033[32m\] \$ \[\033[01;00m\]'
+    PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[34m\]__ \[\033[01;34m\]\w\[\033[32m\] \$ \[\033[01;00m\]'
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 if [[ $(id -u) -eq 0 ]];then
     # ps1 for root user
-    PS1='\033[31;5m$PS1\033[0m '
+    PS1='\033[31;5m Evil Root \033[0m \$ \[\033[01;00m\]'
+    
 fi
 
 unset color_prompt force_color_prompt
@@ -109,7 +111,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
 alias ll='ls -alF'
