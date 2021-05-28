@@ -77,13 +77,13 @@ git_branch() {
 #'${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 if [ "$color_prompt" = yes ]; then
-    PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[34m\]__ \[\033[01;34m\]\w\[\033[32m\] \$ \[\033[01;00m\]'
+    PS1='[_\D{%T}_] ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[34m\]__ \[\033[01;34m\]\w\[\033[32m\] \$ \[\033[01;00m\]'
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 if [[ $(id -u) -eq 0 ]];then
     # ps1 for root user
-    PS1='\033[31;5m Evil Root \033[0m \$ \[\033[01;00m\]'
+    PS1='\[\033[31;5m\] Evil Root \033[0m \$ \[\033[01;00m\]'
     
 fi
 
@@ -117,6 +117,8 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias get_1st_col="awk '{print $1}'"
+alias get_2nd_col="awk '{print $2}'"
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
