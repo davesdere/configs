@@ -69,12 +69,6 @@ parse_git_branch() {
       echo "$f($g)"
     fi
 }
-git_branch() {
-  git branch 2>/dev/null | grep '^*' | colrm 1 2
-}
-#PS1='\D{%T} $(parse_git_branch)\n${PS1}'
-#└──
-#'${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 if [ "$color_prompt" = yes ]; then
     PS1='[_\D{%T}_] ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[34m\]__ \[\033[01;34m\]\w\[\033[32m\] \$ \[\033[01;00m\]'
@@ -86,7 +80,25 @@ if [[ $(id -u) -eq 0 ]];then
     PS1='\[\033[31;5m\] Evil Root \033[0m \$ \[\033[01;00m\]'
     
 fi
-
+# Fancy mode
+fancy_parse_git_branch() {
+    f='└── '
+    g=$(git branch 2>/dev/null | grep '^*' | colrm 1 2)
+    if [ -z "$g" ]
+    then
+      echo
+    else
+      echo
+      echo "$f($g)"
+    fi
+}
+fancy_my_prompt() {
+PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(fancy_parse_git_branch)\n\[\033[00m\]└── \[\033[01;34m\]\w\[\033[00m\]\[\033[32m\] $ \[\033[01;00m\]'
+}
+mep_my_prompt() {
+# TODO: Add date and variable name for host and user
+PS1='[\D{%T}] ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[34m\]__ \[\033[01;34m\]\w\[\033[32m\] \$ \[\033[01;00m\]'
+}
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
