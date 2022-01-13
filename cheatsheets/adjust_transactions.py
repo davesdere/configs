@@ -1,4 +1,4 @@
-# Pandas convert RBC transactions into accounting friendly format
+# Pandas convert banking transactions into accounting friendly format
 import pandas as pd
 """
     'Transaction Date' is the 3rd column
