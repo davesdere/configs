@@ -10,3 +10,10 @@ or counting backwards 10
 ```bash
 echo "hidden command" && history -d $(history 1 | awk '{print $1}')
 ```
+
+# Checksum validation
+```bash
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+
+echo "$(cat ${CHECKSUMFILE})  ${FILENAME}" | sha256sum --check
+```
