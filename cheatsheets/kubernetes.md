@@ -22,3 +22,7 @@ Windows 10 Pro with WSL2
 3. [Install Kind](https://kind.sigs.k8s.io/)
 4. Create a cluster if you have Docker permission error. Configure Docker permission properly or be lazy with `sudo env "PATH=$PATH" kind create cluster` **At your  own risk** You could even add `alias superkind='sudo env "PATH=$PATH" kind'` to your `~/.bashrc`
 5. Install Kubectl
+
+
+## Great introduction video  
+https://www.youtube.com/watch?v=X48VuDVv0do
