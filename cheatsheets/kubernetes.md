@@ -16,9 +16,10 @@ The Cloud provider way is easier but is more pricey.
 > [Great introduction video](https://www.youtube.com/watch?v=X48VuDVv0do)  
 https://youtu.be/X48VuDVv0do?t=4876
 
-## Local setup  
+## Local setup with KinD    
 > By default, the cluster access configuration is stored in ${HOME}/.kube/config if $KUBECONFIG environment variable is not set.
 Windows 10 Pro with WSL2  
+
 0. Install WSL2 and get it to work with internet access.
 1. Install Docker 
     Make sure to  
@@ -39,6 +40,8 @@ Windows 10 Pro with WSL2
 # Great tutorial to see a dashboard and all
 https://kubernetes.io/blog/2020/05/21/wsl-docker-kubernetes-on-the-windows-desktop/
 
+# Ingress  
+[Docs for KinD](https://kind.sigs.k8s.io/docs/user/ingress/)  
 
 # Logging  
 

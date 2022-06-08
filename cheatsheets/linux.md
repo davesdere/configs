@@ -2,6 +2,14 @@
 
 ## Check My IP `curl https://checkip.amazonaws.com`  
 
+## Wait for a job/command to finish  
+Will print PID and wait for the last PID in the queue
+```
+sleep 60 &
+PID_number_of_last_command=$!
+wait ${PID_number_of_last_command}
+
+```
 
 ```sh
 compgen -c # Will list all the commands you could run.
