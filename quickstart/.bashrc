@@ -160,3 +160,4 @@ export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 complete -C /usr/bin/terraform terraform
+echo "Life doesn't happen to me, it happens for me!"
