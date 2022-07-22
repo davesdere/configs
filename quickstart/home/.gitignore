@@ -1,0 +1,3 @@
+# Dont commit git creds
+.gitconfig
+.git-*.conf
