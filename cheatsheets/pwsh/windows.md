@@ -2,11 +2,12 @@
 
 
 ```powershell
-# Collect RDP access logs
+# Collect RDP access logs #opsec #opsec
 Get-EventLog security -after (Get-date -hour 0 -minute 0 -second 0) | ?{$_.eventid -eq 4624 -and $_.Message -match 'logon type:\s+(10)\s'} | Out-GridView
 ```
 
 ```powershell
+# Inspect Windows logs with Powershell #opsec
 # Source
 # https://docs.microsoft.com/en-us/answers/questions/486771/how-to-collect-rdp-access-logs-for-my-windows-mach.html
 Get-EventLog -LogName Security -after (Get-date -hour 0 -minute 0 -second 0)| ?{(4624,4778) -contains $_.EventID -and $_.Message -match 'logon type:\s+(10)\s'}| %{

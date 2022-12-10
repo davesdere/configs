@@ -8,7 +8,7 @@ date_input = "20221230"
 yo =datetime.datetime.strptime("2013-1-25", '%Y-%m-%d').strftime('%m/%d/%y')
 print(yo)
 
-with open('banking.csv') as csv_file:
+with open('test_date.csv') as csv_file:
     """
     'Transaction Date' is the 3rd column
     5th and 6th columns are 'Description 1' and 'Description 2'
