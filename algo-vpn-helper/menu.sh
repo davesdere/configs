@@ -26,9 +26,9 @@ update_sg_rules (){
     PS3="$prompt "
     select opt in "${options[@]}" "Quit"; do 
         case "$REPLY" in
-        1) read -p "Enter shortname: " VPN_SHORTNAME;;
-        2) read -p "Enter shortname: " AWS_CLI_PROFILE;;
-        3) echo "Shortname: ${VPN_SHORTNAME}  AWS CLI Profile Name: ${AWS_CLI_PROFILE}";;
+        1) read -p "Enter algo name: " VPN_SHORTNAME;;
+        2) read -p "Enter aws cli profile name: " AWS_CLI_PROFILE;;
+        3) echo "Algo shortname: ${VPN_SHORTNAME}  AWS CLI Profile Name: ${AWS_CLI_PROFILE}";;
         4) bash ./update-sg.sh ${VPN_SHORTNAME} ${AWS_CLI_PROFILE};;
         $((${#options[@]}+1))) echo "Goodbye!"; break;;
         *) echo "Invalid option. Try another one.";continue;;
