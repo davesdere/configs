@@ -1,4 +1,0 @@
-[include]
-    path = ~/src/git-personal.conf
-[includeIf "gitdir:~/src/work/"]
-    path = ~/src/work/git-work.conf
