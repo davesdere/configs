@@ -15,6 +15,7 @@ configure_tool() {
         $((${#options[@]}+1))) echo "Goodbye!"; break;;
         *) echo "Invalid option. Try another one.";continue;;
         esac
+        REPLY=
     done
     
 }
@@ -32,6 +33,7 @@ update_sg_rules (){
         $((${#options[@]}+1))) echo "Goodbye!"; break;;
         *) echo "Invalid option. Try another one.";continue;;
         esac
+        REPLY=
     done
     
 }
@@ -69,6 +71,7 @@ main(){
         $((${#options[@]}+1))) echo "Goodbye!"; break;;
         *) echo "Invalid option. Try another one.";continue;;
         esac
+        REPLY=
     done
 }
 
