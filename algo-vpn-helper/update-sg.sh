@@ -62,5 +62,6 @@ echo "Current Security group attached"
 ${AWS_CLI_PREFIX} ec2 describe-instances --filters Name=tag:Name,Values=${MY_ALGO_VPN_SHORTNAME} --query 'Reservations[0].Instances[0].SecurityGroups'
 
 # Delete old security group. You need to detach it first
+echo "Deleting old Security group: ${OLD_SECURITY_GROUP}"
 ${AWS_CLI_PREFIX} ec2 delete-security-group --group-id ${OLD_SECURITY_GROUP}
 echo done
