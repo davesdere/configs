@@ -22,17 +22,17 @@ Resources:
           package_upgrade: true
           packages:
             - guacd
-            - libcairo2-dev
-            - libjpeg-turbo8-dev
-            - libpng-dev
-            - libtool
-            - libvncserver-dev
-            - libfreerdp-dev
-            - libpulse-dev
-            - libssh2-1-dev
-            - libssl-dev
-            - libtelnet-dev
-            - libvorbis-dev
+#             - libcairo2-dev
+#             - libjpeg-turbo8-dev
+#             - libpng-dev
+#             - libtool
+#             - libvncserver-dev
+#             - libfreerdp-dev
+#             - libpulse-dev
+#             - libssh2-1-dev
+#             - libssl-dev
+#             - libtelnet-dev
+#             - libvorbis-dev
             - tomcat9
             - wget
             - awscli
@@ -44,16 +44,17 @@ Resources:
               content: |
                 0 0,12 * * * root python3 -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew
           runcmd:
-            - wget 'http://sourceforge.net/projects/guacamole/files/current/source/guacamole-server-1.3.0.tar.gz'
-            - tar -xzf guacamole-server-1.3.0.tar.gz
-            - cd guacamole-server-1.3.0
-            - ./configure --with-init-dir=/etc/init.d
-            - make
-            - make install
-            - ldconfig
-            - systemctl enable guacd
-            - wget 'http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-1.3.0.war'
-            - mv guacamole-1.3.0.war /var/lib/tomcat9/webapps/
+#             - wget 'http://sourceforge.net/projects/guacamole/files/current/source/guacamole-server-1.3.0.tar.gz'
+#             - tar -xzf guacamole-server-1.3.0.tar.gz
+#             - cd guacamole-server-1.3.0
+#             - ./configure --with-init-dir=/etc/init.d
+#             - make
+#             - make install
+#             - ldconfig
+#             - systemctl enable guacd
+#             - wget 'http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-1.3.0.war'
+#             - mv guacamole-1.3.0.war /var/lib/tomcat9/webapps/
+            - apt-get install -y guacamole-server
             # Configure default credentials
             # Replace "mysecret" with the name of your secret
             - AWS_SECRET_ACCESS_KEY=$(aws secretsmanager get-secret-value --secret-id my-secret --query SecretString --output text | grep AWS_SECRET_ACCESS_KEY | cut -d "\"" -f4)
