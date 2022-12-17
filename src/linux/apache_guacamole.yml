@@ -53,6 +53,8 @@ Resources:
             - systemctl enable guacd
             - wget 'http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-1.3.0.war'
             - mv guacamole-1.3.0.war /var/lib/tomcat9/webapps/
+            # Configure default credentials
+            - guacamole-server set-user-mapping -u myusername -p mypassword
             - systemctl restart tomcat9
               # Install SSM
             - wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb
@@ -64,17 +66,27 @@ Resources:
             #The last command will obtain a TLS/SSL certificate for the domain names example.com and www.example.com, and configure the Apache webserver to use it.
             #Set up a cron job to automatically renew the TLS/SSL certificate:
             # Install Elastic Stack platform
-            - apt-get update
-            - wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
-            - echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-7.x.list
-            - apt-get update
-            - apt-get install -y elasticsearch logstash kibana
-            - systemctl enable elasticsearch
-            - systemctl start elasticsearch
-            - systemctl enable logstash
-            - systemctl start logstash
-            - systemctl enable kibana
-            - systemctl start kibana
+            #- apt-get update
+            #- wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
+            #- echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-7.x.list
+            #- apt-get update
+            #- apt-get install -y elasticsearch logstash kibana
+            #- systemctl enable elasticsearch
+            #- systemctl start elasticsearch
+            #- systemctl enable logstash
+            #- systemctl start logstash
+            #- systemctl enable kibana
+            #- systemctl start kibana
+            # Install wazuh
+            #- apt-get update
+            #- apt-get install -y apt-transport-https curl
+            #- curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+            #- echo "deb https://packages.wazuh.com/3.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
+            #- apt-get update
+            #- apt-get install -y wazuh-manager
+            #- systemctl enable wazuh-manager
+            #- systemctl start wazuh-manager
+            
   GuacamoleSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
