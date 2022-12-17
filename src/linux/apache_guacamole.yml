@@ -55,9 +55,10 @@ Resources:
             - wget 'http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-1.3.0.war'
             - mv guacamole-1.3.0.war /var/lib/tomcat9/webapps/
             # Configure default credentials
-          # Replace "mysecret" with the name of your secret
-            - AWS_ACCESS_KEY_ID=`aws secretsmanager get-secret-value --secret-id mysecret --query SecretString --output text | jq -r '.AWS_ACCESS_KEY_ID'`
-            - AWS_SECRET_ACCESS_KEY=`aws secretsmanager get-secret-value --secret-id mysecret --query SecretString --output text | jq -r '.AWS_SECRET_ACCESS_KEY'`
+            # Replace "mysecret" with the name of your secret
+            - AWS_SECRET_ACCESS_KEY=$(aws secretsmanager get-secret-value --secret-id my-secret --query SecretString --output text | grep AWS_SECRET_ACCESS_KEY | cut -d "\"" -f4)
+            - AWS_ACCESS_KEY_ID=$(aws secretsmanager get-secret-value --secret-id my-secret --query SecretString --output text | grep AWS_ACCESS_KEY_ID | cut -d "\"" -f4)
+            - guacamole-server set-user-mapping -u $AWS_ACCESS_KEY_ID -p $AWS_SECRET_ACCESS_KEY
             # Replace "myusername" with the desired username
             - guacamole-server set-user-mapping -u myusername -p $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
             - systemctl restart tomcat9
