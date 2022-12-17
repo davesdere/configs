@@ -1,0 +1,125 @@
+#Write AWS Cloudformation code that will deploy and configure a TLS supported Apache Guacamole running on a EC2 running Ubuntu 20.04.
+
+#Here is an example of an AWS CloudFormation template that can be used to deploy and configure a TLS-supported Apache Guacamole server running on an EC2 instance running Ubuntu 20.04:
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploys a TLS-supported Apache Guacamole server on an EC2 instance running Ubuntu 20.04
+Resources:
+  GuacamoleEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0bbe6b35405ecebdb # Ubuntu 20.04 AMI
+      InstanceType: t2.micro
+      #KeyName: myKeyPair
+      SecurityGroupIds:
+        - !Ref GuacamoleSecurityGroup
+      SubnetId: !Ref SubnetId
+      IamInstanceProfile:
+        Arn: !Ref SSMIAMRole
+      UserData:
+        'Fn::Base64': !Sub |
+          #cloud-config
+          package_upgrade: true
+          packages:
+            - guacd
+            - libcairo2-dev
+            - libjpeg-turbo8-dev
+            - libpng-dev
+            - libtool
+            - libvncserver-dev
+            - libfreerdp-dev
+            - libpulse-dev
+            - libssh2-1-dev
+            - libssl-dev
+            - libtelnet-dev
+            - libvorbis-dev
+            - tomcat9
+            - wget
+          write_files:
+          #This cron job will run the certbot renew command at midnight and noon every day, to check for and renew any expiring TLS/SSL certificates.
+            - path: /etc/cron.d/certbot
+              owner: root
+              permissions: '0644'
+              content: |
+                0 0,12 * * * root python3 -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew
+          runcmd:
+            - wget 'http://sourceforge.net/projects/guacamole/files/current/source/guacamole-server-1.3.0.tar.gz'
+            - tar -xzf guacamole-server-1.3.0.tar.gz
+            - cd guacamole-server-1.3.0
+            - ./configure --with-init-dir=/etc/init.d
+            - make
+            - make install
+            - ldconfig
+            - systemctl enable guacd
+            - wget 'http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-1.3.0.war'
+            - mv guacamole-1.3.0.war /var/lib/tomcat9/webapps/
+            - systemctl restart tomcat9
+              # Install SSM
+            - wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb
+            - dpkg -i amazon-ssm-agent.deb
+            # Install Certbot
+            - apt-get update -y
+            - apt-get install -y certbot apache2-utils
+            - certbot --apache -d example.com -d www.example.com
+            #The last command will obtain a TLS/SSL certificate for the domain names example.com and www.example.com, and configure the Apache webserver to use it.
+            #Set up a cron job to automatically renew the TLS/SSL certificate:
+            # Install Elastic Stack platform
+            - apt-get update
+            - wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
+            - echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-7.x.list
+            - apt-get update
+            - apt-get install -y elasticsearch logstash kibana
+            - systemctl enable elasticsearch
+            - systemctl start elasticsearch
+            - systemctl enable logstash
+            - systemctl start logstash
+            - systemctl enable kibana
+            - systemctl start kibana
+  GuacamoleSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Apache Guacamole
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+  SubnetId:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VpcId
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: us-east-1a
+  VpcId:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+  SSMIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+Outputs:
+  GuacamoleURL:
+    Value: !Join ['', ['https://', !GetAtt GuacamoleEC2Instance.PublicDnsName]]
+    Description: URL for accessing Apache Guacamole
+#This template creates an EC2 instance running Ubuntu 20.04, a security group that allows incoming traffic on ports 80 and 443 (for HTTP and HTTPS traffic, respectively), and a VPC with a subnet. It also defines an output that provides the URL for accessing the Apache Guacamole server.
+
+#To configure TLS support for Apache Guacamole, you will need to obtain a valid TLS/SSL certificate and install it on the EC2 instance. You can do this by following the steps outlined in the Apache Guacamole documentation, or by using a tool such as the Certbot client to obtain and install a free Let's Encrypt certificate.
+
+#Once you have installed the TLS certificate, you will need to configure Apache Guacamole to use it. This typically involves modifying the Apache configuration file to specify the location of the certificate and private key files, and enabling the SSL module.
+
+#I hope this helps! Let me know if you have any questions or if you would like further assistance with your CloudFormation template.
