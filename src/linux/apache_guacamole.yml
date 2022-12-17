@@ -35,6 +35,7 @@ Resources:
 #             - libvorbis-dev
             - tomcat9
             - wget
+            - nikto
             - awscli
           write_files:
           #This cron job will run the certbot renew command at midnight and noon every day, to check for and renew any expiring TLS/SSL certificates.
@@ -93,7 +94,8 @@ Resources:
             #- apt-get install -y wazuh-manager
             #- systemctl enable wazuh-manager
             #- systemctl start wazuh-manager
-            
+            - nikto -h <target_guacamole_server> -p 8080 > nikto_output.txt
+            - aws sns publish --topic-arn <arn_of_sns_topic> --message file://nikto_output.txt
   GuacamoleSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
