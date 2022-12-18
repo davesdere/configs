@@ -96,6 +96,12 @@ Resources:
             #- systemctl start wazuh-manager
             - nikto -h <target_guacamole_server> -p 8080 > nikto_output.txt
             - aws sns publish --topic-arn <arn_of_sns_topic> --message file://nikto_output.txt
+             #### Configure Certbot dynamically
+           - domain=$(ec2metadata --public-hostname)
+           - sudo openssl req -new -newkey rsa:2048 -nodes -keyout /etc/ssl/private/example.key -out /etc/ssl/certs/example.csr -subj "/CN=$domain"
+           - sudo certbot certonly --dns-route53 --dns-route53-propagation-seconds 30 --csr /etc/ssl/certs/example.csr --cert-path /etc/ssl/certs/example.crt
+           - sudo cat /etc/ssl/certs/example.crt /etc/ssl/private/example.key > /etc/ssl/certs/example.pem
+            
   GuacamoleSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
