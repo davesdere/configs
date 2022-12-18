@@ -133,7 +133,30 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+
+
+########################################################################################
+#             Secret Manager Secret
+########################################################################################
+
+MySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: my-secret
+      Description: My secret
+      SecretString: !Sub "${SecretValue}"
+
+Parameters:
+  SecretValue:
+    Type: String
+    Default: !ImportValue secrets.json
+
+
 Outputs:
+  SecretManagerSecretName:
+    Value: !Join ['', ['https://', !GetAtt MySecret.Name
+    Description: Name of secret for accessing Apache Guacamole
+
   GuacamoleURL:
     Value: !Join ['', ['https://', !GetAtt GuacamoleEC2Instance.PublicDnsName]]
     Description: URL for accessing Apache Guacamole
