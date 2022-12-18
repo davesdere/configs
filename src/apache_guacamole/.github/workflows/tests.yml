@@ -1,0 +1,32 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - tests/*
+      
+      
+ jobs:
+  test:  
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up AWS CLI
+      uses: aws-actions/setup-aws-cli@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - name: Run CloudFormation Unit Tests
+      run: |
+        import os
+        # Navigate to the parent directory of the current working directory
+        os.chdir(os.path.dirname(os.getcwd()))
+        # Navigate to the parent directory again
+        os.chdir(os.path.dirname(os.getcwd()))
+        # Construct the full path to the CloudFormation template file
+        template_path = os.path.join(os.getcwd(), "apache_guacamole_on_aws_ec2.yml")
+        aws cloudformation validate-template --template-body file://$template_path
+        # Replace "test_suite_name" with the name of your unit test suite
+        # python -m unittest test_suite_name
+        python -m unittest os.path.join(os.getcwd(), "test_cloudformation_deployment.py")
+        python -m unittest os.path.join(os.getcwd(), "test_certbot_configuration.py")
