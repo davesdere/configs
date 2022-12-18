@@ -17,6 +17,17 @@ Resources:
       IamInstanceProfile:
         Arn: !Ref SSMIAMRole
       UserData:
+        AWS::CloudFormation::Init:
+          files:
+            # This specifies the location of the script on the instance
+            # and the source location in the CloudFormation template.
+            "/tmp/myscript.py":
+              content: !Sub |
+                #!/usr/bin/env python
+                print("Hello, World!")
+              mode: "000755"
+              owner: root
+              group: root
         'Fn::Base64': !Sub |
           #cloud-config
           package_upgrade: true
@@ -68,9 +79,9 @@ Resources:
             - wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb
             - dpkg -i amazon-ssm-agent.deb
             # Install Certbot
-            - apt-get update -y
-            - apt-get install -y certbot apache2-utils
-            - certbot --apache -d example.com -d www.example.com
+#             - apt-get update -y
+#             - apt-get install -y certbot apache2-utils
+#             - certbot --apache -d example.com -d www.example.com
             #The last command will obtain a TLS/SSL certificate for the domain names example.com and www.example.com, and configure the Apache webserver to use it.
             #Set up a cron job to automatically renew the TLS/SSL certificate:
             # Install Elastic Stack platform
@@ -101,6 +112,10 @@ Resources:
            - sudo openssl req -new -newkey rsa:2048 -nodes -keyout /etc/ssl/private/example.key -out /etc/ssl/certs/example.csr -subj "/CN=$domain"
            - sudo certbot certonly --dns-route53 --dns-route53-propagation-seconds 30 --csr /etc/ssl/certs/example.csr --cert-path /etc/ssl/certs/example.crt
            - sudo cat /etc/ssl/certs/example.crt /etc/ssl/private/example.key > /etc/ssl/certs/example.pem
+            ####################################
+            #     Unit tests
+            ####################################
+            - python test_certificate_generation.py
             
   GuacamoleSecurityGroup:
     Type: AWS::EC2::SecurityGroup
