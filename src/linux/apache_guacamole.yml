@@ -1,4 +1,14 @@
 #Write AWS Cloudformation code that will deploy and configure a TLS supported Apache Guacamole running on a EC2 running Ubuntu 20.04.
+# aws cloudformation create-stack \
+#  --stack-name apache_guacamole \
+#  --template-body file://apache_guacamole.yaml \
+#  --parameters \
+#    ParameterKey=SecretName,ParameterValue=my-secret-name \
+#    ParameterKey=AmiId,ParameterValue=base-os-ami-id \
+#    ParameterKey=ShortName,ParameterValue=my-shortname-name \
+#    ParameterKey=IngressIP,ParameterValue=ingress-ip-restriction \
+#    ParameterKey=InstanceType,ParameterValue=t2.micro
+#    
 
 #Here is an example of an AWS CloudFormation template that can be used to deploy and configure a TLS-supported Apache Guacamole server running on an EC2 instance running Ubuntu 20.04:
 ---
