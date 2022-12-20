@@ -1,50 +1,45 @@
-.mario::before {
-  content: "";
-  display: block;
-  width: 100px;
-  height: 100px;
-  background-image: url('mario.svg');
-}
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .mario-container {
+      position: relative;
+      width: 100%;
+      height: 200px;
+    }
 
-.mushroom::before {
-  content: "";
-  display: block;
-  width: 50px;
-  height: 50px;
-  background-image: url('mushroom.svg');
-}
+    .mario {
+      background-image: url('mario.svg');
+      width: 100px;
+      height: 100px;
+      animation: jump 0.5s linear infinite;
+    }
 
+    @keyframes jump {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-50px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
 
-const marioContainer = document.querySelector('.mario-container');
-
-const mario = document.createElement('div');
-mario.className = 'mario';
-mario.style.width = '100px';
-mario.style.height = '100px';
-mario.style.backgroundImage = "url('mario.svg')";
-marioContainer.appendChild(mario);
-
-const mushroom = document.createElement('div');
-mushroom.className = 'mushroom';
-mushroom.style.width = '50px';
-mushroom.style.height = '50px';
-mushroom.style.backgroundImage = "url('mushroom.svg')";
-mushroomContainer.appendChild(mushroom);
-
-.mario {
-  /* Other styles */
-  animation: jump 0.5s linear infinite;
-}
-
-@keyframes jump {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-50px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
+    .mushroom {
+      background-image: url('mushroom.svg');
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      top: 70%;
+    }
+  </style>
+</head>
+<body>
+  <div class="mario-container">
+    <div class="mario"></div>
+    <div class="mushroom"></div>
+  </div>
+</body>
+</html>
