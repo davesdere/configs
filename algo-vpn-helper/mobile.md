@@ -180,7 +180,7 @@ Add tags to the security group. The key is CreationDate and the value is a times
 
 To add a tag to a security group in Amazon Elastic Compute Cloud (EC2) with the key "CreationDate" and a value of a timestamp, you can use the create_tags method of the EC2 client. Here's an example of how you can do this:
 
-Copy code
+
 import datetime
 
 # Get the current timestamp
@@ -316,6 +316,22 @@ cloudformation = boto3.client('cloudformation')
 
 # Delete the stack with the specified name
 cloudformation.delete_stack(StackName='STACK_NAME')
+
+
+import json
+
+# Open the file containing the AWS credentials
+with open('credentials.json', 'r') as f:
+    # Load the contents of the file as a JSON object
+    credentials = json.load(f)
+
+# Extract the AWS access key ID and secret access key
+access_key_id = credentials['accessKeyId']
+secret_access_key = credentials['secretAccessKey']
+
+# Use the AWS credentials to create an EC2 client
+import boto3
+ec2 = boto3.client('ec2', aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key)
 
 
 ```
