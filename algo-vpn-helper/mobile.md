@@ -308,4 +308,14 @@ ec2.start_instances(InstanceIds=['INSTANCE_ID'])
 # Stop an EC2 instance
 ec2.stop_instances(InstanceIds=['INSTANCE_ID'])
 
+
+import boto3
+
+# Create a CloudFormation client
+cloudformation = boto3.client('cloudformation')
+
+# Delete the stack with the specified name
+cloudformation.delete_stack(StackName='STACK_NAME')
+
+
 ```
