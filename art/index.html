@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #mario {
+        position: relative;
+        width: 50px;
+        height: 50px;
+      }
+      
+      #mushroom {
+        position: absolute;
+        left: 100px;
+        bottom: 0;
+        width: 50px;
+        height: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mario">
+      <svg width="50" height="50">
+        <!-- Insert SVG code for the Mario Bros character here -->
+      </svg>
+    </div>
+    
+    <div id="mushroom">
+      <svg width="50" height="50">
+        <!-- Insert SVG code for the mushroom here -->
+      </svg>
+    </div>
+    
+    <script>
+      const mario = document.getElementById('mario');
+      const mushroom = document.getElementById('mushroom');
+      
+      function jump() {
+        mario.style.bottom = '200px';
+        setTimeout(() => {
+          mario.style.bottom = '0';
+        }, 500);
+      }
+      
+      mushroom.addEventListener('click', jump);
+    </script>
+  </body>
+</html>
