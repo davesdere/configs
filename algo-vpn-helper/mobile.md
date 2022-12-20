@@ -226,9 +226,6 @@ Find ec2 instance based on tag value
 
 To find an Amazon Elastic Compute Cloud (EC2) instance based on a tag value using the Python boto3 library, you can use the describe_instances method of the EC2 client and filter the results based on the tag value. Here's an example of how you can do this:
 
-Copy code
-import boto3
-
 # Set up the client for the AWS EC2 service
 ec2 = boto3.client('ec2', region_name='us-east-1')
 
@@ -305,5 +302,10 @@ for sg in security_groups:
     print(f'ID: {sg[0]}, Name: {sg[1]}')
 
 
+# Start an EC2 instance
+ec2.start_instances(InstanceIds=['INSTANCE_ID'])
+
+# Stop an EC2 instance
+ec2.stop_instances(InstanceIds=['INSTANCE_ID'])
 
 ```
