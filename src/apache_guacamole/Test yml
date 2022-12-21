@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+
+  MySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: !Select [0, !GetAZs]
+
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0ff8a91507f77f867
+      InstanceType: t2.micro
+      KeyName: myKeyPair
+      IamInstanceProfile: !Ref MyInstanceProfile
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          GroupSet:
+            - !Ref MySecurityGroup
+          SubnetId: !Ref MySubnet
+      Tags:
+        - Key: Name
+          Value: MyEC2Instance
+      UserData:
+        'Fn::Base64': !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          yum install -y tomcat-native
+          yum install -y tomcat tomcat-admin-webapps tomcat-webapps tomcat-docs-webapp tomcat-javadoc
+          yum install -y guacamole-server guacamole-client
+          systemctl enable tomcat
+          systemctl start tomcat
+          systemctl enable httpd
+          systemctl start httpd
+          systemctl enable guacd
+          systemctl start guacd
+
+  MyElasticIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH and HTTP access
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  MyInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref MySSMRole
+
+  MySSMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: MySSMPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+            - Effect: Allow
+              Action:
+                - ssm:DescribeAssociation
+                - ssm:GetDocument
+                - ssm:ListAssociations
+                - ssm:ListInstanceAssociations
+                - ssm:UpdateAssociationStatus
+                - ssm:CreateAssociation
+              Resource: '*'
+
+Outputs:
+  PublicIP:
+    Description: The public IP address of the EC2 instance
+    Value: !GetAtt MyElasticIP.PublicIp
+    Export:
+      Name: PublicIP
+
+

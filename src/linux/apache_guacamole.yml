@@ -1,0 +1,200 @@
+#Write AWS Cloudformation code that will deploy and configure a TLS supported Apache Guacamole running on a EC2 running Ubuntu 20.04.
+# aws cloudformation create-stack \
+#  --stack-name apache_guacamole \
+#  --template-body file://apache_guacamole.yaml \
+#  --parameters \
+#    ParameterKey=SecretName,ParameterValue=my-secret-name \
+#    ParameterKey=AmiId,ParameterValue=base-os-ami-id \
+#    ParameterKey=ShortName,ParameterValue=my-shortname-name \
+#    ParameterKey=IngressIP,ParameterValue=ingress-ip-restriction \
+#    ParameterKey=InstanceType,ParameterValue=t2.micro
+#    
+
+#Here is an example of an AWS CloudFormation template that can be used to deploy and configure a TLS-supported Apache Guacamole server running on an EC2 instance running Ubuntu 20.04:
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploys a TLS-supported Apache Guacamole server on an EC2 instance running Ubuntu 20.04
+Resources:
+  GuacamoleEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0bbe6b35405ecebdb # Ubuntu 20.04 AMI
+      InstanceType: t2.micro
+      #KeyName: myKeyPair
+      SecurityGroupIds:
+        - !Ref GuacamoleSecurityGroup
+      SubnetId: !Ref SubnetId
+      IamInstanceProfile:
+        Arn: !Ref SSMIAMRole
+      UserData:
+        AWS::CloudFormation::Init:
+          files:
+            # This specifies the location of the script on the instance
+            # and the source location in the CloudFormation template.
+            "/tmp/myscript.py":
+              content: !Sub |
+                #!/usr/bin/env python
+                print("Hello, World!")
+              mode: "000755"
+              owner: root
+              group: root
+        'Fn::Base64': !Sub |
+          #cloud-config
+          package_upgrade: true
+          packages:
+            - guacd
+#             - libcairo2-dev
+#             - libjpeg-turbo8-dev
+#             - libpng-dev
+#             - libtool
+#             - libvncserver-dev
+#             - libfreerdp-dev
+#             - libpulse-dev
+#             - libssh2-1-dev
+#             - libssl-dev
+#             - libtelnet-dev
+#             - libvorbis-dev
+            - tomcat9
+            - wget
+            - nikto
+            - awscli
+          write_files:
+          #This cron job will run the certbot renew command at midnight and noon every day, to check for and renew any expiring TLS/SSL certificates.
+            - path: /etc/cron.d/certbot
+              owner: root
+              permissions: '0644'
+              content: |
+                0 0,12 * * * root python3 -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew
+          runcmd:
+#             - wget 'http://sourceforge.net/projects/guacamole/files/current/source/guacamole-server-1.3.0.tar.gz'
+#             - tar -xzf guacamole-server-1.3.0.tar.gz
+#             - cd guacamole-server-1.3.0
+#             - ./configure --with-init-dir=/etc/init.d
+#             - make
+#             - make install
+#             - ldconfig
+#             - systemctl enable guacd
+#             - wget 'http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-1.3.0.war'
+#             - mv guacamole-1.3.0.war /var/lib/tomcat9/webapps/
+            - apt-get install -y guacamole-server
+            # Configure default credentials
+            # Replace "mysecret" with the name of your secret
+            - AWS_SECRET_ACCESS_KEY=$(aws secretsmanager get-secret-value --secret-id my-secret --query SecretString --output text | grep AWS_SECRET_ACCESS_KEY | cut -d "\"" -f4)
+            - AWS_ACCESS_KEY_ID=$(aws secretsmanager get-secret-value --secret-id my-secret --query SecretString --output text | grep AWS_ACCESS_KEY_ID | cut -d "\"" -f4)
+            - guacamole-server set-user-mapping -u $AWS_ACCESS_KEY_ID -p $AWS_SECRET_ACCESS_KEY
+            # Replace "myusername" with the desired username
+            - guacamole-server set-user-mapping -u myusername -p $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
+            - systemctl restart tomcat9
+              # Install SSM
+            - wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb
+            - dpkg -i amazon-ssm-agent.deb
+            # Install Certbot
+#             - apt-get update -y
+#             - apt-get install -y certbot apache2-utils
+#             - certbot --apache -d example.com -d www.example.com
+            #The last command will obtain a TLS/SSL certificate for the domain names example.com and www.example.com, and configure the Apache webserver to use it.
+            #Set up a cron job to automatically renew the TLS/SSL certificate:
+            # Install Elastic Stack platform
+            #- apt-get update
+            #- wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
+            #- echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-7.x.list
+            #- apt-get update
+            #- apt-get install -y elasticsearch logstash kibana
+            #- systemctl enable elasticsearch
+            #- systemctl start elasticsearch
+            #- systemctl enable logstash
+            #- systemctl start logstash
+            #- systemctl enable kibana
+            #- systemctl start kibana
+            # Install wazuh
+            #- apt-get update
+            #- apt-get install -y apt-transport-https curl
+            #- curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+            #- echo "deb https://packages.wazuh.com/3.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
+            #- apt-get update
+            #- apt-get install -y wazuh-manager
+            #- systemctl enable wazuh-manager
+            #- systemctl start wazuh-manager
+            - nikto -h <target_guacamole_server> -p 8080 > nikto_output.txt
+            - aws sns publish --topic-arn <arn_of_sns_topic> --message file://nikto_output.txt
+             #### Configure Certbot dynamically
+           - domain=$(ec2metadata --public-hostname)
+           - sudo openssl req -new -newkey rsa:2048 -nodes -keyout /etc/ssl/private/example.key -out /etc/ssl/certs/example.csr -subj "/CN=$domain"
+           - sudo certbot certonly --dns-route53 --dns-route53-propagation-seconds 30 --csr /etc/ssl/certs/example.csr --cert-path /etc/ssl/certs/example.crt
+           - sudo cat /etc/ssl/certs/example.crt /etc/ssl/private/example.key > /etc/ssl/certs/example.pem
+            ####################################
+            #     Unit tests
+            ####################################
+            - python test_certificate_generation.py
+            
+  GuacamoleSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Apache Guacamole
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+  SubnetId:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VpcId
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: us-east-1a
+  VpcId:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+  SSMIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+
+
+########################################################################################
+#             Secret Manager Secret
+########################################################################################
+
+MySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: my-secret
+      Description: My secret
+      SecretString: !Sub "${SecretValue}"
+
+Parameters:
+  SecretValue:
+    Type: String
+    Default: !ImportValue secrets.json
+
+
+Outputs:
+  SecretManagerSecretName:
+    Value: !Join ['', ['https://', !GetAtt MySecret.Name
+    Description: Name of secret for accessing Apache Guacamole
+
+  GuacamoleURL:
+    Value: !Join ['', ['https://', !GetAtt GuacamoleEC2Instance.PublicDnsName]]
+    Description: URL for accessing Apache Guacamole
+#This template creates an EC2 instance running Ubuntu 20.04, a security group that allows incoming traffic on ports 80 and 443 (for HTTP and HTTPS traffic, respectively), and a VPC with a subnet. It also defines an output that provides the URL for accessing the Apache Guacamole server.
+
+#To configure TLS support for Apache Guacamole, you will need to obtain a valid TLS/SSL certificate and install it on the EC2 instance. You can do this by following the steps outlined in the Apache Guacamole documentation, or by using a tool such as the Certbot client to obtain and install a free Let's Encrypt certificate.
+
+#Once you have installed the TLS certificate, you will need to configure Apache Guacamole to use it. This typically involves modifying the Apache configuration file to specify the location of the certificate and private key files, and enabling the SSL module.
+
+#I hope this helps! Let me know if you have any questions or if you would like further assistance with your CloudFormation template.
