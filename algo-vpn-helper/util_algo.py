@@ -1,3 +1,5 @@
+# Davesdere
+# TODO: Make all the functions region aware
 import boto3
 import urllib.request
 import datetime
@@ -5,11 +7,10 @@ import json
 import argparse
 import configparser
 
-def find_vpn_stack_by_name():
-    pass
+global aws_access_key_id
+global aws_secret_access_key
 
-# list vpn instances
-def list_vpn_instances():
+def find_vpn_stack_by_name():
     pass
 
 # deploy vpn instances
@@ -17,9 +18,87 @@ def deploy_with_config():
     pass
 
 def restrict_sg(ec2, ips_list, mode):
-    # Mode could be;
-    # add, remove, change
-    pass
+    # TODO: Implement logic
+    if mode == 'add':
+        pass
+    elif mode == "remove":
+        pass
+    elif mode == "replace":
+        pass
+    else:
+        print("Wrong op mode provided. Please choose one of the following: 'add', 'remove' and 'replace'")
+
+    return None
+    
+# list vpn instances
+def list_all_vpn(regions=None):
+    # Set the tag key and value
+    tag_key = "Environment"
+    tag_value = "Algo"
+
+    # If the regions list is not provided, get the list of all regions
+    if regions is None:
+        regions = [region['RegionName'] for region in ec2.describe_regions()['Regions']]
+    else:
+        pass
+
+    # Loop through each region
+    for region in regions:
+        # Create a CloudFormation client in the region
+
+        cloudformation = start_cloudformation_session(aws_access_key_id, aws_secret_access_key, region)
+        ec2 = start_ec2_session(aws_access_key_id, aws_access_key_id,region)
+        # Initialize the pagination variables
+        next_token = None
+        stacks = []
+
+        # Loop until there are no more pages of results
+        while True:
+            # Call the list_stacks method and pass in the tag key and value, and the NextToken value if it exists
+            if next_token:
+                response = cloudformation.list_stacks(StackStatusFilter=['CREATE_COMPLETE', 'UPDATE_COMPLETE'],
+                                        TagFilters=[{'Key': tag_key, 'Value': tag_value}],
+                                        NextToken=next_token)
+            else:
+                response = cloudformation.list_stacks(StackStatusFilter=['CREATE_COMPLETE', 'UPDATE_COMPLETE'],
+                                        TagFilters=[{'Key': tag_key, 'Value': tag_value}])
+
+            # Append the stack summaries to the list
+            stacks += response['StackSummaries']
+
+            # Set the next token value
+            next_token = response.get('NextToken', None)
+
+            # Break the loop if there are no more pages of results
+            if not next_token:
+                break
+
+        # Print the name and ID of each stack in the region
+        list_of_ec2=[]
+        for stack in stacks:
+            print(f'Region: {region}, Stack name: {stack["StackName"]}, Stack ID: {stack["StackId"]}')
+            list_of_ec2.append(list_ec2_resources_in_stack(cloudformation, ec2, stack['StackId']))
+        return list_of_ec2
+
+def list_ec2_resources_in_stack(cloudformation, ec2, stack_id):
+
+    # Call the describe_stack_resources method and pass in the stack ID
+    resources = cloudformation.describe_stack_resources(StackName=stack_id)
+    list_of_ec2 = []
+    ec2_details = {"Name": "null", "Id":"null"}
+    # Print the resource type and ID of each EC2 resource
+    for resource in resources['StackResources']:
+        ec2_details = {"Name": "null", "Id":"null"}
+        if resource['ResourceType'] == 'AWS::EC2::Instance':
+            print(f'EC2 resource: {resource["ResourceType"]}, ID: {resource["PhysicalResourceId"]}')
+            tags = ec2.describe_tags(Filters=[{'Name': 'resource-id', 'Values': [resource['PhysicalResourceId']]}])
+            name_tag = [tag['Value'] for tag in tags['Tags'] if tag['Key'] == 'name']
+            name_tag_value = name_tag[0] if name_tag else 'N/A'
+            ec2_details["Name"] = name_tag_value
+            ec2_details["Id"] = resource["PhysicalResourceId"]
+            list_of_ec2 += ec2_details
+    return list_of_ec2
+
 
 def get_public_ip():
     # TODO: Error handling
@@ -29,6 +108,8 @@ def get_public_ip():
 def load_credentials(path_to_file, profile_name):
     # TODO: Error handling
     # ~/.aws/credentials
+    global aws_access_key_id
+    global aws_secret_access_key
     # Parse the AWS CLI credentials file
     config = configparser.ConfigParser()
     config.read(f'{path_to_file}')
@@ -45,9 +126,13 @@ def start_ec2_session(access_key_id, secret_access_key,in_region):
     ec2 = boto3.client('ec2', aws_access_key_id=f'{access_key_id}', aws_secret_access_key=f'{secret_access_key}', region_name=f'{in_region}')
     return ec2
 
-def start_cloudformation_session(access_key_id, secret_access_key,in_region):
+def start_cloudformation_session(access_key_id, secret_access_key, in_region):
     cloudformation = boto3.client('cloudformation', aws_access_key_id=f'{access_key_id}', aws_secret_access_key=f'{secret_access_key}', region_name=f'{in_region}')
     return cloudformation
+
+def get_all_aws_regions(ec2):
+    regions = [region['RegionName'] for region in ec2.describe_regions()['Regions']]
+    return regions
 
 # start vpn instances
 def start_instance(ec2, instance_id):
@@ -191,8 +276,10 @@ def main():
     parser.add_argument('--credentials', required=True, help='IAM: AWS credentials json file')
     parser.add_argument('--profile', required=True, help='IAM: Local AWS profile name')
     parser.add_argument('--operation', required=True, help='Function: Operation to do')
-    parser.add_argument('--short_name', required=False, help='Tags: The value of the Name key')
-    parser.add_argument('--config', required=False, help='Data: The JSON configuration file')
+    parser.add_argument('--op_mode', required=False, help='Function: Operation mode for restrict_sg operation')
+    parser.add_argument('--ip_list', required=False, help='Data: IP list')
+    parser.add_argument('--short_name', required=False, help='Tags: The value of the Name key on the EC2')
+    parser.add_argument('--config', required=False, help='Data: The JSON configuration file to configure Algo')
 
     parser.add_argument('--help', required=False, help='Help me help you out')
     parser.add_argument('--verbose', action='store_true', help='Verbose output')
@@ -211,9 +298,12 @@ def main():
     print(f'# Timestamp: {timestamp}')
     print(f'# Credential files: {args.credentials}')
 
-    aws_access_key_id, aws_secret_access_key = load_credentials(args.credentials)
 
-    if operation not in ['start_instance', 'stop_instance', 'deploy_vpn', 'delete_vpn','restrict_ips', 'check_status']:
+    #aws_access_key_id, aws_secret_access_key = load_credentials(args.credentials, args.profile)
+    # Change global variable instead
+    load_credentials(args.credentials, args.profile)
+
+    if operation not in ['start_instance', 'stop_instance', 'deploy_vpn', 'delete_vpn','restrict_sg', 'check_status', 'list_all_vpn']:
         print('Wrong operation pal!')
         exit
     
@@ -244,20 +334,32 @@ def main():
         destroy_stack(cf, short_name)
         print(f'Operation {operation} done.')
     
-    if operation == 'restrict_ips':
+    if operation == 'restrict_sg':
         # TODO: Make test cases
         ec2 = start_ec2_session(aws_access_key_id, aws_secret_access_key)
-        if len(args.config) == 0:
-            print("Missing the config file path")
+        if len(args.ip_list) == 0:
+            print("No IPs provided, exiting")
             exit
+        if len(args.op_mode) == 0:
+            print("No operation mode provided, exiting")
+            exit
+        # restrict_sg(ec2, args.ip_list, args.op_mode)
         print("#"*60)
         print("#"," "*5,"Not implemented"," "*5,"#")
         print("#"*60)
-
     
     if operation == 'check_status':
         ec2 = start_ec2_session(aws_access_key_id, aws_secret_access_key)
         check_status_of_ec2(ec2, short_name)
+        print(f'Operation {operation} done.')
+
+    if operation == 'list_all_vpn':
+        cloudformation = start_cloudformation_session(aws_access_key_id, aws_secret_access_key)
+        if len(args.op_mode) == 0:
+            list_all_vpn(regions=None)
+        elif 'region' in args.op_mode:
+            region= args.op_mode.split('=')[-1]
+            list_all_vpn(cloudformation, ec2=None, regions=[region])
         print(f'Operation {operation} done.')
 
 if __name__ == '__main__':   
