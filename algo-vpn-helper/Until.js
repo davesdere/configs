@@ -93,6 +93,42 @@ function modifySecurityGroup(securityGroupId, publicIp) {
               {
                 IpProtocol: 'tcp',
                 FromPort: 0,
+//////////////////////// Attempt to finish the previous code
+  // First, revoke all existing security group rules that allow incoming traffic
+  var revokePromises = securityGroupRules.map(rule => {
+    return ec2.revokeSecurityGroupIngress({
+      GroupId: securityGroupId,
+      IpPermissions: [rule]
+    }).promise();
+  });
+
+  return Promise.all(revokePromises)
+    .then(() => {
+      // Allow incoming traffic from the specified IP address
+      var params = {
+        GroupId: securityGroupId,
+        IpPermissions: [
+          {
+            IpProtocol: 'tcp',
+            FromPort: 0,
+            ToPort: 65535,
+            IpRanges: [
+              {
+                CidrIp: ipAddress + '/32'
+              }
+            ]
+          }
+        ]
+      };
+      return ec2.authorizeSecurityGroupIngress(params).promise();
+    })
+    .then(() => {
+      console.log(`Successfully allowed incoming traffic from ${ipAddress}`);
+    })
+    .catch(error => {
+      console.error(`Error allowing incoming traffic from ${ipAddress}:`, error);
+    });
+
       /////////////
                 // Define a function to modify the security group rules to allow incoming traffic only from the specified IP address
 function modifySecurityGroup(securityGroupId, publicIp) {
@@ -216,4 +252,76 @@ ec2.modifyInstanceAttribute(params, function(err, data) {
   }
 });
 ///////////////////////////
-    
+// Wireguard
+
+function startWireGuardConnection() {
+  // First, check if the WireGuard app is installed on the device
+  if (!checkIfWireGuardInstalled()) {
+    console.error("WireGuard app is not installed on this device");
+    return;
+  }
+
+  // Next, check if the WireGuard app is currently running
+  if (!checkIfWireGuardRunning()) {
+    console.error("WireGuard app is not currently running on this device");
+    return;
+  }
+
+  // Now, use the WireGuard API to start the connection
+  WireGuard.connect({
+    config: {
+      // Replace these placeholder values with your own WireGuard configuration
+      PrivateKey: "YOUR_PRIVATE_KEY",
+      Address: "YOUR_IP_ADDRESS/YOUR_NETMASK",
+      DNS: "YOUR_DNS_SERVER",
+      MTU: "YOUR_MTU_VALUE",
+      [{
+        PublicKey: "YOUR_PUBLIC_KEY",
+        Endpoint: "YOUR_ENDPOINT",
+        AllowedIPs: ["YOUR_ALLOWED_IPS"]
+      }]
+    },
+    onSuccess: function() {
+      console.log("WireGuard connection started successfully");
+    },
+    onError: function(error) {
+      console.error("Error starting WireGuard connection:", error);
+    }
+  });
+}
+
+// Helper function to check if the WireGuard app is installed
+function checkIfWireGuardInstalled() {
+  if (navigator.applications) {
+    // Check if the WireGuard app is installed on the device
+    return navigator.applications.checkInstalled("com.wireguard.ios")
+      .then(function(isInstalled) {
+        return isInstalled;
+      })
+      .catch(function(error) {
+        console.error("Error checking if WireGuard is installed:", error);
+        return false;
+      });
+  } else {
+    console.error("Applications API is not supported on this device");
+    return false;
+  }
+}
+
+// Helper function to check if the WireGuard app is currently running
+function checkIfWireGuardRunning() {
+  if (WireGuard) {
+    // Check if the WireGuard app is currently running
+    return WireGuard.isRunning()
+      .then(function(isRunning) {
+        return isRunning;
+      })
+      .catch(function(error) {
+        console.error("Error checking if WireGuard is running:", error);
+        return false;
+      });
+  } else {
+    console.error("WireGuard API is not available on this device");
+    return false;
+  }
+}
