@@ -1,0 +1,22 @@
+<!-- Include the Pyodide library -->
+<script src="https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js"></script>
+
+<!-- Add a button to run the Python code -->
+<button id="run-button">Run Python</button>
+
+<!-- Include a script to execute the Python code when the button is clicked -->
+<script>
+  // Get a reference to the button
+  const button = document.getElementById('run-button');
+  
+  // Set the Python code to run
+  const pythonCode = `
+    print("Hello from Python!")
+  `;
+  
+  // Add an event listener to the button to run the Python code when the button is clicked
+  button.addEventListener('click', () => {
+    // Run the Python code using the pyodide.runPython function
+    pyodide.runPython(pythonCode);
+  });
+</script>
