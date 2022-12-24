@@ -181,4 +181,39 @@ ec2.createSecurityGroup(params, function(err, data) {
     });
   }
 });
+////////////
+    
+    // Set the parameters for modifying the instance attribute to allow stopping and starting the instance
+var params = {
+  InstanceId: 'INSTANCE_ID',
+  DisableApiTermination: {
+    Value: false
+  }
+};
 
+// Modify the instance attribute to allow stopping and starting the instance
+ec2.modifyInstanceAttribute(params, function(err, data) {
+  if (err) {
+    console.log("Error", err);
+  } else {
+    console.log("Success", data);
+    
+    // Set the parameters for starting the instance
+    var params = {
+      InstanceIds: [
+        'INSTANCE_ID'
+      ]
+    };
+    
+    // Start the instance
+    ec2.startInstances(params, function(err, data) {
+      if (err) {
+        console.log("Error", err);
+      } else {
+        console.log("Success", data);
+      }
+    });
+  }
+});
+///////////////////////////
+    
