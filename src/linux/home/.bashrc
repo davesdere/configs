@@ -167,7 +167,7 @@ fancy_parse_git_branch() {
 fancy_my_prompt() {
 PS1='\D{%T} ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u\033[0;0m@\033[0;32m\h\[\033[00m\]\[\033[01;34m\] $(fancy_parse_git_branch)\n\[\033[32m\]└── \[\033[01;34m\]\w\[\033[00m\]\[\033[32m\] $ \[\033[01;00m\]'
 }
-mep_my_prompt() {
+fix_my_ps1() {
 # TODO: Add date and variable name for host and user
 PS1='[\D{%T}] ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] $(parse_git_branch)\n\[\033[34m\]__ \[\033[01;34m\]\w\[\033[32m\] \$ \[\033[01;00m\]'
 }
