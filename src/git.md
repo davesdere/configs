@@ -61,3 +61,38 @@ git branch -m old_branch new_branch         # Rename branch locally
 git push origin :old_branch                 # Delete the old branch    
 git push --set-upstream origin new_branch   # Push the new branch, set local branch to track the new remot
 ```
+# Git Hooks.
+`pre-commit` file to validate JSON syntax  
+```python
+#!/usr/bin/env python
+import json
+import sys
+
+# Check the syntax of all JSON files in the repository
+for file in `git diff-index --cached --name-only HEAD | grep .json`:
+    try:
+        with open(file) as f:
+            json.load(f)
+    except json.JSONDecodeError as e:
+        print("Error: Invalid JSON syntax in file %s: %s" % (file, e))
+        sys.exit(1)
+
+```
+As a pytest file. 
+```import json
+import os
+import subprocess
+
+def test_json_syntax():
+    current_branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True).stdout.strip().decode("utf-8")
+    assert current_branch == "main", f"This test should be run only in main branch, but it was run on {current_branch} branch"
+    for file in subprocess.run(["git", "diff-index", "--cached", "--name-only", "HEAD"], capture_output=True).stdout.strip().decode("utf-8").split("\n"):
+        if file.endswith(".json"):
+            with open(file) as f:
+                json.load(f)
+
+# To commit if test passes
+subprocess.run(["git", "commit", "-am", "valid json files"])
+
+
+```
