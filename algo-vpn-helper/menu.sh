@@ -1,6 +1,6 @@
 #!/bin/bash
 # Manage your Algo VPN on a EC2
-
+TOOL_FLAG=$1
 configure_tool() {
     echo "# Configuring tool"
     prompt="Choose an option: "
@@ -70,5 +70,12 @@ main(){
     done
 }
 
+# Check if shortname has been entered
+if [ ! -z "${TOOL_FLAG}" ]; then
+   source ./${TOOL_FLAG}
+   echo "Config loaded."
+else
+    echo "Interactive mode on."
+fi
 
 main
