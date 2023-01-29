@@ -2,6 +2,11 @@
 MY_ALGO_VPN_SHORTNAME=$1
 MY_AWS_CLI_PROFILE=$2
 
+main(){
+    # Delete Cloudformation stack
+    aws cloudformation delete-stack --stack-name ${MY_ALGO_VPN_SHORTNAME}
+}
+
 
 # Check if shortname has been entered
 if [ ! -z "${MY_ALGO_VPN_SHORTNAME}" ]; then
@@ -29,8 +34,4 @@ else
     fi
 fi
 
-main(){
-    # Delete Cloudformation stack
-    aws cloudformation delete-stack --stack-name ${MY_ALGO_VPN_SHORTNAME}
-}
 
