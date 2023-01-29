@@ -19,7 +19,7 @@ else
     exit
 fi
 
-if [ "$MY_AWS_CLI_PROFILE" == "None"]; then
+if [ "$MY_AWS_CLI_PROFILE" == "None" ] ; then
     echo "AWS Profile: ${MY_AWS_CLI_PROFILE}"
     AWS_CLI_PREFIX="aws"
     checkstateec2

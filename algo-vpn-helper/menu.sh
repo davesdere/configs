@@ -13,7 +13,8 @@ configure_tool() {
         3) echo "# EC2 Tagged : ${EC2_NAME_TAG}  AWS CLI Profile Name: ${AWS_CLI_PROFILE}";;
         4) 
             read -p "Enter config file name: " CONFIG_FILE_NAME
-            echo -e "EC2_NAME_TAG=${EC2_NAME_TAG}\nAWS_CLI_PROFILE=${AWS_CLI_PROFILE}" > ${CONFIG_FILE_NAME}
+            read -p "Enter default region: " AWS_DEFAULT_REGION
+            echo -e "EC2_NAME_TAG=${EC2_NAME_TAG}\nAWS_CLI_PROFILE=${AWS_CLI_PROFILE}\nexport AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" > ${CONFIG_FILE_NAME}
             echo "Don't forget to chmod +x ${CONFIG_FILE_NAME}"
             ;;
 
