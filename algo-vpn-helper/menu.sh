@@ -4,14 +4,23 @@
 configure_tool() {
     echo "# Configuring tool"
     prompt="Choose an option: "
-    options=("EC2 Tag 'Name' value" "AWS CLI profile name" "View configs")
+    options=("EC2 Tag 'Name' value" "AWS CLI profile name" "View configs" "Save config" "Load Conf")
     PS3="$prompt "
     select opt in "${options[@]}" "Main menu"; do 
         case "$REPLY" in
         1) read -p "Enter name: " EC2_NAME_TAG;;
         2) read -p "Enter AWS CLI profile name: " AWS_CLI_PROFILE;;
         3) echo "# EC2 Tagged : ${EC2_NAME_TAG}  AWS CLI Profile Name: ${AWS_CLI_PROFILE}";;
-        4) main;;
+        4) 
+            read -p "Enter config file name: " CONFIG_FILE_NAME
+            echo -e "EC2_NAME_TAG=${EC2_NAME_TAG}\nAWS_CLI_PROFILE=${AWS_CLI_PROFILE}" > ${CONFIG_FILE_NAME}
+            echo "Don't forget to chmod +x ${CONFIG_FILE_NAME}"
+            ;;
+
+        5) 
+            read -p "Enter config file name: " CONFIG_FILE_NAME
+            source ${CONFIG_FILE_NAME};;
+        6) main;;
         $((${#options[@]}+1))) echo "Goodbye!"; break;;
         *) echo "Invalid option. Try another one.";continue;;
         esac
@@ -19,6 +28,7 @@ configure_tool() {
     done
     
 }
+
 update_sg_rules (){
     bash ./update-sg.sh ${EC2_NAME_TAG} ${AWS_CLI_PROFILE}
 }

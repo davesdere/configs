@@ -14,6 +14,8 @@ fi
 if [ ! -z "$MY_AWS_CLI_PROFILE" ]; then
    AWS_CLI_PREFIX="aws --profile ${MY_AWS_CLI_PROFILE}"
    echo "AWS CLI set to work with  profile ${MY_AWS_CLI_PROFILE}"
+elif [ "$MY_AWS_CLI_PROFILE" == "None"]; then
+    AWS_CLI_PREFIX="aws"
 else
     AWS_CLI_PREFIX="aws"
     echo "AWS CLI set to work with default profile"
