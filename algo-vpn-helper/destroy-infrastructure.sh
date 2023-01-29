@@ -29,5 +29,8 @@ else
     fi
 fi
 
-# Delete Cloudformation stack
-aws cloudformation delete-stack --stack-name ${MY_ALGO_VPN_SHORTNAME}
+main(){
+    # Delete Cloudformation stack
+    aws cloudformation delete-stack --stack-name ${MY_ALGO_VPN_SHORTNAME}
+}
+
