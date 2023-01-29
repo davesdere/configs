@@ -23,11 +23,11 @@ fi
 
 if [ "$MY_AWS_CLI_PROFILE" == "None" ]; then
     echo "AWS Profile: ${MY_AWS_CLI_PROFILE}"
-    AWS_CLI_PREFIX="aws"
+    AWS_CLI_PREFIX="aws --region ${AWS_DEFAULT_REGION}"
     main
 fi
 if [ ! -z "$MY_AWS_CLI_PROFILE" ]; then
-   AWS_CLI_PREFIX="aws --profile ${MY_AWS_CLI_PROFILE}"
+   AWS_CLI_PREFIX="aws --profile ${MY_AWS_CLI_PROFILE} --region ${AWS_DEFAULT_REGION}"
    echo "AWS CLI set to work with  profile ${MY_AWS_CLI_PROFILE}"
    main
 else

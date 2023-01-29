@@ -4,7 +4,7 @@ MY_AWS_CLI_PROFILE=$2
 
 main(){
     # Delete Cloudformation stack
-    aws cloudformation delete-stack --stack-name ${MY_ALGO_VPN_SHORTNAME}
+    aws cloudformation delete-stack --stack-name ${MY_ALGO_VPN_SHORTNAME} --region ${AWS_DEFAULT_REGION}
 }
 
 
